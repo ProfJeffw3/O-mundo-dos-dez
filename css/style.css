@@ -32,19 +32,22 @@ h1{
     padding: 20px;
     border-radius: 20px;
     font-size: 25px;
-    transition: transform 1s
+    transition: transform 1s;
+
+    margin-top: 20px;
 }
 #start-button:hover{
     background-color: steelblue;
     color: #ffffff;
-    transform: scale(1.5)
+
+    transform: scale(1.5);
 }
 #game{
-    width: 800px;
-    height: 600px;
-    background-color: #fff;
-    border: 2px solid #000;
-    margin-top: 20px
+    width: 1000px;
+    height: 800px;
+    border: 5px solid #ffffff;
+    margin-top: 20px;
+    position: relative;
 }
 #game-over{
     display: flex;
@@ -52,12 +55,11 @@ h1{
     align-items: center;
     height: 100%;
 }
-.crystal{
-    width: 50px;
-    height: 50px;
-    background-color: blue;
-    margin: 10px;
-    display: inline-block;
-    cursor: pointer;
-    border-radius: 50%;
+#background{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url(../assets/imagens/background.jpg);
+    background-size: cover;
+    z-index: -1;
 }

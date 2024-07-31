@@ -27,7 +27,13 @@ function startGame(backgroundAudio) {
 }
 
 function loadLevel(levelNumber) {
-    document.getElementById('game').innerHTML = '';
+    document.getElementById('game').innerHTML = `
+        <section id="background"></section>
+        <section id="character"></section>
+        <section id="obstacle"></section>
+    
+    
+    `;
 
     const script = document.createElement('script');
     script.src = `js/levels/level${levelNumber}.js`;

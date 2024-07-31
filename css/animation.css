@@ -1,0 +1,18 @@
+#character {
+    position: absolute;
+    bottom: 0;
+    left: 50px;
+    width: 50px;
+    height: 50px;
+    background: url(../assets/imagens/player.png) /* Você pode substituir por uma imagem */
+}
+
+#obstacle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50px;
+    height: 50px;
+    background-color: green; /* Você pode substituir por uma imagem */
+    animation: moveObstacle 2s linear infinite;
+}
