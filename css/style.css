@@ -48,12 +48,30 @@ h1{
     border: 5px solid #ffffff;
     margin-top: 20px;
     position: relative;
+    overflow: hidden;
 }
 #game-over{
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
+}
+#character {
+    position: absolute;
+    bottom: 0;
+    left: 50px;
+    width: 350px;
+    height: 350px;
+    background: url(../assets/imagens/player.gif);
+    animation: jump 500ms infinite ease-out;
+}
+#obstacle {
+    position: absolute;
+    bottom: 0;
+    width: 150px;
+    height: 150px;
+    background: url(../assets/imagens/enemy.gif); /* Você pode substituir por uma imagem */
+    animation: obstacle-animation 2s infinite linear;
 }
 #background{
     position: absolute;
