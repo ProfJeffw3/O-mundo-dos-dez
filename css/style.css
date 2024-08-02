@@ -33,13 +33,13 @@ h1{
     border-radius: 20px;
     font-size: 25px;
     transition: transform 1s;
-
     margin-top: 20px;
+    justify-content: center;
+    align-items: center;
 }
 #start-button:hover{
     background-color: steelblue;
     color: #ffffff;
-
     transform: scale(1.5);
 }
 #game{
@@ -63,14 +63,13 @@ h1{
     width: 350px;
     height: 350px;
     background: url(../assets/imagens/player.gif);
-    animation: jump 500ms infinite ease-out;
 }
 #obstacle {
     position: absolute;
     bottom: 0;
     width: 150px;
     height: 150px;
-    background: url(../assets/imagens/enemy.gif); /* Você pode substituir por uma imagem */
+    background: url(../assets/imagens/enemy.gif);
     animation: obstacle-animation 2s infinite linear;
 }
 #background{
