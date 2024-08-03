@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <meta name="description" content="Um jogo divertido e desafiador sobre coleta de bananas e obstáculos.">
+    <meta name="keywords" content="jogo, bananas, obstáculos, desafio, diversão">
+    <meta name="author" content="Jefferson de Souza Santos">
     <link rel="stylesheet" type="text/css" href="css/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
     <link rel="stylesheet" type="text/css" href="css/animation.css"/>
     <title>O MUNDO DOS 10</title>
 </head>
@@ -13,25 +16,32 @@
     <main id="game-container">
         <section id="start-screen">
             <h1>DESAFIO DOS DEZ</h1>
-            <button id="start-button">PLAY</button>
+            <button id="start-button" aria-label="Começar o Jogo">PLAY</button>
         </section>
         <section id="game" style="display: none;">
-            <section id="character"></section>
+            <div id="score">0</div>
+            <div id="timer">10:00</div>
             <section id="background"></section>
-            <section id="obstacle"></section>
+            <section id="character" aria-label="Personagem do Jogador"></section>
+            <section id="obstacle" aria-label="Obstáculo"></section>
+            <section id="banana" aria-label="Banana"></section>
         </section>
         <section id="game-over" style="display: none;">
             <h1>GAME OVER</h1>
+        </section>
+        <section id="congratulations" style="display: none;">
+            <h1>PARABÉNS!</h1>
         </section>
     </main>
     <audio id="background-audio" loop>
         <source src="assets/sons/start-screen.mp3" type="audio/mpeg">
     </audio>
     <audio id="game-over-audio">
-        <source src="/assets/sons/game-over.mp3" type="audio/mpeg">
+        <source src="assets/sons/game-over.mp3" type="audio/mpeg">
     </audio>
     <script src="js/libs/particles.min.js"></script>
     <script src="js/particles-config.js"></script>
+    <script src="js/audio.js"></script>
     <script src="js/startgame.js"></script>
 </body>
 </html>

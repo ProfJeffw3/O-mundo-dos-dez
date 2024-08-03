@@ -1,25 +1,12 @@
-// Adiciona um listener para o evento 'DOMContentLoaded', que é disparado quando o HTML foi completamente carregado e analisado
-document.addEventListener('DOMContentLoaded', (event) => {
-    // Seleciona o botão de início e o áudio de fundo pelo id
+document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const backgroundAudio = document.getElementById('background-audio');
+    const gameOverAudio = document.getElementById('game-over-audio');
 
-    // Tenta tocar o áudio de fundo quando a página carrega
-    backgroundAudio.play().catch(error => {
-        console.log('Playback prevented:', error);
-
-        // Se o áudio não puder ser reproduzido devido a restrições de autoplay, adiciona um listener para tocar o áudio quando o usuário clicar na página
-        document.body.addEventListener('click', () => {
-            backgroundAudio.play().catch(err => console.log('Playback prevented again:', err));
-        }, { once: true }); // O listener será removido após o primeiro clique
-    });
-
-    // Adiciona um listener para o botão de início que chama a função startGame quando o botão é clicado
     startButton.addEventListener('click', () => {
         startGame(backgroundAudio);
     });
 
-    // Adiciona um listener para o evento de teclado que verifica se a tecla pressionada é a barra de espaço ('Space') e chama a função jump se for
     document.addEventListener('keydown', (event) => {
         if (event.code === 'Space') {
             jump();
@@ -27,104 +14,197 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
 });
 
-// Função que inicia o jogo
 function startGame(backgroundAudio) {
-    // Esconde a tela de início e mostra o contêiner do jogo
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('game').style.display = 'block';
-
-    // Pausa o áudio de fundo
+    hideElement('start-screen');
+    showElement('game');
     backgroundAudio.pause();
-    // Carrega o nível 1 do jogo
-    loadLevel(1);
-    resetPositions();
+    initializeGame();
 }
 
-// Função que carrega o conteúdo e scripts específicos de um nível
+function hideElement(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+function showElement(id) {
+    document.getElementById(id).style.display = 'block';
+}
+
+let score = 0;
+let level = 1;
+let bananasToCollect = 10;
+let timerInterval;
+let bananaSpeed = 2;
+let obstacleSpeed = 2;
+
+function initializeGame() {
+    score = 0;
+    level = 1;
+    bananasToCollect = 10;
+    document.getElementById('score').innerText = score;
+    document.getElementById('timer').innerText = '10:00';
+
+    startTimer();
+    loadLevel(level);
+}
+
 function loadLevel(levelNumber) {
-    // Atualiza o conteúdo HTML do contêiner do jogo para incluir seções para plano de fundo, personagem e obstáculo
-    document.getElementById('game').innerHTML = `
-        <section id="background"></section>
-        <section id="character"></section>
-        <section id="obstacle"></section>
-    `;
+    const game = document.getElementById('game');
 
-    // Cria um novo elemento de script para carregar o script do nível específico
-    const script = document.createElement('script');
-    script.src = `js/levels/level${levelNumber}.js`;
-    document.body.appendChild(script); // Adiciona o script ao corpo do documento
+    // Clear previous bananas and obstacles
+    document.querySelectorAll('.banana, .obstacle').forEach(element => {
+        element.remove();
+    });
+
+    // Adjust speeds based on level
+    bananaSpeed = 2 + (levelNumber - 1) * 0.5;
+    obstacleSpeed = 2 + (levelNumber - 1) * 0.5;
+
+    // Create bananas and obstacles
+    for (let i = 0; i < levelNumber * 2; i++) {
+        createBanana(game);
+        createObstacle(game);
+    }
+
+    moveElements();
 }
 
-// Função que faz o personagem pular
-function jump() {
-    const character = document.getElementById('character');
-    // Adiciona a animação de pulo ao personagem
-    character.style.animation = 'jump 500ms ease-out';
-    // Remove a animação após a duração da animação
-    setTimeout(() => {
-        character.style.animation = '';
-    }, 500);
+function createBanana(game) {
+    const banana = document.createElement('div');
+    banana.classList.add('banana');
+    banana.style.right = '-50px'; // Start off-screen
+    banana.style.bottom = `${Math.random() * 300 + 100}px`; // Random height
+    game.appendChild(banana);
 }
 
-// Função que verifica continuamente se há colisão entre o personagem e o obstáculo
-const loop = setInterval(() => {
+function createObstacle(game) {
+    const obstacle = document.createElement('div');
+    obstacle.classList.add('obstacle');
+    obstacle.style.right = '-150px'; // Start off-screen
+    game.appendChild(obstacle);
+}
+
+function moveElements() {
+    function update() {
+        checkCollision();
+        checkBananaCollection();
+        moveBananas();
+        moveObstacles();
+        requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+}
+
+function moveBananas() {
+    document.querySelectorAll('.banana').forEach(banana => {
+        let currentRight = parseInt(window.getComputedStyle(banana).right);
+
+        if (currentRight < window.innerWidth) {
+            banana.style.right = (currentRight + bananaSpeed) + 'px';
+        } else {
+            banana.style.right = '-50px'; // Reset position
+        }
+    });
+}
+
+function moveObstacles() {
+    document.querySelectorAll('.obstacle').forEach(obstacle => {
+        let currentRight = parseInt(window.getComputedStyle(obstacle).right);
+
+        if (currentRight < window.innerWidth) {
+            obstacle.style.right = (currentRight + obstacleSpeed) + 'px';
+        } else {
+            obstacle.style.right = '-150px'; // Reset position
+        }
+    });
+}
+
+function checkCollision() {
     const character = document.getElementById('character');
-    const obstacle = document.getElementById('obstacle');
+    const obstacles = document.querySelectorAll('.obstacle');
 
     const characterRect = character.getBoundingClientRect();
-    const obstacleRect = obstacle.getBoundingClientRect();
 
-    console.log('Character Rect:', characterRect);
-    console.log('Obstacle Rect:', obstacleRect);
+    obstacles.forEach(obstacle => {
+        const obstacleRect = obstacle.getBoundingClientRect();
 
-    // Verifica se há uma colisão entre o personagem e o obstáculo
-    if (obstacleRect.right > characterRect.left && 
-        obstacleRect.left < characterRect.right && 
-        obstacleRect.bottom > characterRect.top && 
-        obstacleRect.top < characterRect.bottom) {
-        console.log('Collision detected');
-        gameOver();
-    }
-}, 20); // Executa a verificação a cada 20 milissegundos
-
-// Função que exibe uma mensagem no contêiner do jogo
-function showMessage(message) {
-    const gameContainer = document.getElementById('game');
-    const messageDiv = document.createElement('div');
-    messageDiv.innerText = message; // Define o texto da mensagem
-    gameContainer.appendChild(messageDiv); // Adiciona a mensagem ao contêiner do jogo
+        if (
+            characterRect.right > obstacleRect.left &&
+            characterRect.left < obstacleRect.right &&
+            characterRect.bottom > obstacleRect.top &&
+            characterRect.top < obstacleRect.bottom
+        ) {
+            gameOver();
+        }
+    });
 }
 
-// Função que lida com o fim do jogo
-function gameOver() {
-    // Esconde o contêiner do jogo e mostra a tela de game over
-    document.getElementById('game').style.display = 'none';
-    document.getElementById('game-over').style.display = 'flex';
-    clearInterval(loop); // Para o loop ao detectar colisão
-
-    // Após 10 segundos, esconde a tela de game over e mostra a tela de início
-    setTimeout(() => {
-        document.getElementById('game-over').style.display = 'none';
-        document.getElementById('start-screen').style.display = 'flex';
-        // Reinicia o jogo
-        resetGame();
-    }, 10000);
-}
-
-// Função que reinicia o jogo
-function resetGame() {
-    // Mostra a tela de início e esconde o contêiner do jogo
-    document.getElementById('start-screen').style.display = 'flex';
-    document.getElementById('game').style.display = 'none';
-    // Pode adicionar lógica adicional de reinício aqui, se necessário
-}
-
-// Função que reinicia as posições dos elementos
-function resetPositions() {
+function checkBananaCollection() {
     const character = document.getElementById('character');
-    const obstacle = document.getElementById('obstacle');
-    character.style.left = '50px';
-    character.style.top = '300px';
-    obstacle.style.left = '600px';
-    obstacle.style.top = '300px';
+    const bananas = document.querySelectorAll('.banana');
+
+    const characterRect = character.getBoundingClientRect();
+
+    bananas.forEach(banana => {
+        const bananaRect = banana.getBoundingClientRect();
+
+        if (
+            characterRect.right > bananaRect.left &&
+            characterRect.left < bananaRect.right &&
+            characterRect.bottom > bananaRect.top &&
+            characterRect.top < bananaRect.bottom
+        ) {
+            // Increment score and check for level completion
+            score++;
+            document.getElementById('score').innerText = score;
+
+            if (score >= bananasToCollect) {
+                level++;
+                if (level > 10) {
+                    showElement('congratulations');
+                    hideElement('game');
+                } else {
+                    bananasToCollect += 10; // Increase target for next level
+                    loadLevel(level);
+                }
+            }
+
+            // Move banana off-screen
+            banana.style.right = '-50px';
+        }
+    });
+}
+
+function jump() {
+    const character = document.getElementById('character');
+    if (!character.classList.contains('jump')) {
+        character.classList.add('jump');
+        setTimeout(() => {
+            character.classList.remove('jump');
+        }, 500);
+    }
+}
+
+function startTimer() {
+    let timeRemaining = 600; // 10 minutes in seconds
+
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+
+        document.getElementById('timer').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            gameOver();
+        }
+    }, 1000);
+}
+
+function gameOver() {
+    clearInterval(timerInterval);
+    hideElement('game');
+    showElement('game-over');
+    playAudio(document.getElementById('game-over-audio'));
 }

@@ -1,25 +1,35 @@
-@keyframes obstacle-animation{
+@keyframes obstacle-animation {
     from {
-        right: -80px;
+        right: -150px;
     }
-    to{
+    to {
         right: 100%;
     }
 }
-@keyframes jump{
+
+@keyframes banana-animation {
+    from {
+        right: -50px;
+    }
+    to {
+        right: 100%;
+    }
+}
+
+@keyframes jump {
     0% {
         bottom: 0;
     }
-    40%{
+    40% {
         bottom: 180px;
     }
-    50%{
+    50% {
         bottom: 180px;
     }
-    60%{
+    60% {
         bottom: 180px;
     }
-    100%{
+    100% {
         bottom: 0;
     }
 }
